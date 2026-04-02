@@ -1,5 +1,5 @@
 #' @export
-sim.CNA <- function(n.obs      = 100,
+simulateCNA <- function(n.obs      = 100,
                     p          = 1024,
                     n.sim      = 1,
                     effect.diff = 1,
@@ -7,7 +7,8 @@ sim.CNA <- function(n.obs      = 100,
                     true.rho   = 0.9,
                     block.cor  = 0.4,
                     block.diff = "A",
-                    true.mu    = NULL) {
+                    true.mu    = NULL,
+                    verbose = FALSE) {
   # Function to generate CNA data
   # Author: Arief Gusnanto (a.gusnanto@leeds.ac.uk)
   
@@ -91,7 +92,9 @@ sim.CNA <- function(n.obs      = 100,
   sim.dat <- vector("list", n.sim)
   
   for (j in seq_len(n.sim)) {
-    message("Simulating data set ", j)
+    if (isTRUE(verbose)) {
+      message("Simulating data set ", j)
+    }
     Z.sim <- mvrnorm(n.obs, mu = true.mu, Sigma = true.Sigma)
     
     ## Add mean shift to first group

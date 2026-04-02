@@ -1,5 +1,5 @@
-\name{classif.wavFeatExt}
-\alias{classif.wavFeatExt}
+\name{classifyWavFeatExt}
+\alias{classifyWavFeatExt}
 \title{
 Classification on Wavelet-based Features
 }
@@ -11,11 +11,11 @@ namely detail and scaling coefficients, as well as on the original
 combined into a single feature set.
 }
 \usage{
-classif.wavFeatExt(data, y, det, sca,
+classifyWavFeatExt(data, y, det, sca,
                    method = c("lasso", "elnet", "RF", "NN", "PLS", "KNN"),
                    k = 5,
                    ite = length(data),
-                   all = FALSE)
+                   all = FALSE, verbose = FALSE)
 }
 \arguments{
   \item{data}{
@@ -73,6 +73,9 @@ classif.wavFeatExt(data, y, det, sca,
     original/segmented matrix (\code{"seg"}) is evaluated as the second
     feature set.
   }
+  \item{verbose}{
+    Logical; if TRUE, progress messages are printed. Default is FALSE.
+  }
 }
 \details{
 For each replication, the function randomly assigns observations to
@@ -101,7 +104,7 @@ for \code{ite} replications, producing two matrices (CE and AUC).
 }
 }
 \value{
-An object of class \code{"classif.wavFeatExt"}, a list with components:
+An object of class \code{"wavFeatExtClassifier"}, a list with components:
 \item{CE}{
   Numeric matrix of cross-validated misclassification errors.
   Rows correspond to replications (\code{ite}) and columns to feature
@@ -131,28 +134,43 @@ Regression shrinkage and selection via the Lasso.
 Maharani Ahsani Ummi and Arief Gusnanto
 }
 \seealso{
-\code{\link{sim.CNA}},
+\code{\link{simulateCNA}},
 \code{\link{wavFeatExt}},
-\code{\link{classif.pcaica}},
+\code{\link{classifyPcaIca}},
 \code{\link{nhwt}}
 }
+
 \examples{
-## Generating simulated CNA data
 set.seed(10)
-sim.dat2 <- sim.CNA(n.sim = 2)  # two simulated data sets
 
-## Obtain wavelet detail and scaling coefficients
-det.coef <- wavFeatExt(sim.dat2, type = "detail")
-sca.coef <- wavFeatExt(sim.dat2, type = "scaling")
+## Small simulated data for fast execution
+sim.dat <- simulateCNA(
+  n.obs = 20,
+  p = 32,
+  n.sim = 1,
+  n.block = 8,
+  verbose = FALSE
+)
 
-## Binary response (for example, first 50 vs last 50 samples)
-y <- factor(c(rep("Group1", 50), rep("Group2", 50)))
+## Wavelet coefficients
+det.coef <- wavFeatExt(sim.dat, type = "detail")
+sca.coef <- wavFeatExt(sim.dat, type = "scaling")
 
-## Perform classification using k-nearest neighbours
-res <- classif.wavFeatExt(sim.dat2, y, det.coef, sca.coef,
-                          method = "KNN", k = 5, ite = 2)
+## Binary response
+y <- factor(rep(c("Group1", "Group2"), each = 10))
 
-## End(Not run)
+## Classification
+res <- classifyWavFeatExt(
+  sim.dat,
+  y,
+  det.coef,
+  sca.coef,
+  method = "KNN",
+  k = 5,
+  ite = 1
+)
+
+res
 }
 \keyword{classification}
 \keyword{wavelets}

@@ -1,5 +1,5 @@
-\name{classif.pcaica}
-\alias{classif.pcaica}
+\name{classifyPcaIca}
+\alias{classifyPcaIca}
 \title{
 Classification on PCA- and ICA-based Feature Sets
 }
@@ -12,14 +12,16 @@ elastic net, random forest, neural network, partial least squares,
 and k-nearest neighbours.
 }
 \usage{
-classif.pcaica(data, y, pca, ica, method,
-               k, ite = length(data))
+classifyPcaIca(data, y, pca, ica,
+               method = c("lasso", "elnet", "RF", "NN", "PLS", "KNN"),
+               k = 5,
+               ite = length(data))
 }
 \arguments{
   \item{data}{
     A list of numeric matrices, each with observations in rows and
     variables in columns, or an object with equivalent structure
-    (e.g. the output from \code{\link{sim.CNA}}). Each element of
+    (e.g. the output from \code{\link{simulateCNA}}). Each element of
     the list corresponds to one simulated data set or replicate.
   }
   \item{y}{
@@ -29,16 +31,16 @@ classif.pcaica(data, y, pca, ica, method,
     factor with two levels.
   }
   \item{pca}{
-    Result of applying \code{\link{get.pca}} to \code{data}, i.e. a
+    Result of applying \code{\link{getPca}} to \code{data}, i.e. a
     list of PCA-based feature sets for each data set. For each
     data set, the corresponding element is a list of cumulative
-    principal components obtained from \code{\link{get.pca}}.
+    principal components obtained from \code{\link{getPca}}.
   }
   \item{ica}{
-    Result of applying \code{\link{get.ica}} to \code{data}, i.e. a
+    Result of applying \code{\link{getIca}} to \code{data}, i.e. a
     list of ICA-based feature sets for each data set. For each
     data set, the corresponding element is a list of cumulative
-    independent components obtained from \code{\link{get.ica}}.
+    independent components obtained from \code{\link{getIca}}.
   }
   \item{method}{
     Character string specifying the classification method to use.
@@ -106,26 +108,37 @@ Random forests.
 Maharani Ahsani Ummi and Arief Gusnanto
 }
 \seealso{
-\code{\link{sim.CNA}},
-\code{\link{get.pca}},
-\code{\link{get.ica}},
-\code{\link{classif.wavFeatExt}}
+\code{\link{simulateCNA}},
+\code{\link{getPca}},
+\code{\link{getIca}},
+\code{\link{classifyWavFeatExt}}
 }
 \examples{
-## Generating simulated CNA data
 set.seed(10)
-sim.dat10 <- sim.CNA(n.sim = 2)
 
-## Obtain PCA and ICA feature sets with 10 components
-pca <- get.pca(sim.dat10, k = 10)
-ica <- get.ica(sim.dat10, k = 10)
+sim.dat <- simulateCNA(
+  n.obs = 20,
+  p = 32,
+  n.sim = 1,
+  n.block = 8,
+  verbose = FALSE
+)
 
-## Binary response (for example, first 50 vs last 50 samples)
-y <- factor(c(rep("Group1", 50), rep("Group2", 50)))
+pca <- getPca(sim.dat, k = 4)
+ica <- getIca(sim.dat, k = 4)
 
-## Perform classification using k-nearest neighbour
-res <- classif.pcaica(sim.dat10, y, pca, ica,
-                      method = "KNN", k = 5)
-## End(Not run)
+y <- factor(rep(c("Group1", "Group2"), each = 10))
+
+res <- classifyPcaIca(
+  sim.dat,
+  y,
+  pca,
+  ica,
+  method = "KNN",
+  k = 5,
+  ite = 1
+)
+
+res
 }
 \keyword{classification}

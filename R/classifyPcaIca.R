@@ -1,5 +1,5 @@
 #' @export
-classif.pcaica <- function(data, y, pca, ica,
+classifyPcaIca <- function(data, y, pca, ica,
                            method = c("lasso", "elnet", "RF", "NN", "PLS", "KNN"),
                            k = 5,
                            ite = length(data)) {
@@ -182,7 +182,7 @@ classif.pcaica <- function(data, y, pca, ica,
         }
         
         ## --- AUC ---
-        roc.obj <- pROC::roc(y.test_bin, pred_prob)
+        roc.obj <- pROC::roc(y.test_bin, pred_prob, quiet = TRUE)
         auc_vec[f] <- as.numeric(pROC::auc(roc.obj))
       }
       
@@ -207,6 +207,6 @@ classif.pcaica <- function(data, y, pca, ica,
     method = method
   )
 
-  class(res) <- "classif.pcaica"
+  class(res) <- "pcaIcaClassifier"
   res
 }

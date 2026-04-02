@@ -6,7 +6,7 @@ Performs circular binary segmentation (CBS) using the \pkg{DNAcopy} package
 on a numeric vector representing a single copy-number profile.
 }
 \usage{
-CBS(obj, chr = rep(1, length(obj)))
+CBS(obj, chr = rep(1, length(obj)), verbose = FALSE)
 }
 \arguments{
   \item{obj}{
@@ -17,6 +17,10 @@ CBS(obj, chr = rep(1, length(obj)))
     Vector of the same length as \code{obj} giving the chromosome index
     for each position. By default all positions are assumed to belong
     to chromosome 1.
+  }
+  \item{verbose}{
+    Logical. If \code{TRUE}, progress messages from the segmentation procedure
+    are shown. If \code{FALSE}, they are suppressed.
   }
 }
 \details{
@@ -52,10 +56,7 @@ cn <- rnorm(100, mean = c(rep(2, 50), rep(1, 50)), sd = 0.4)
 cn.cbs <- CBS(cn)
 
 ## Plot raw and segmented profiles
-plot(cn, type = "p", main = "CBS segmentation example",
-     xlab = "Genomic position", ylab = "Copy-number")
-lines(cn.cbs, type = "l", col = 2, lwd = 2)
-legend("topright", legend = c("Raw", "CBS segmented"),
-       col = c(1, 2), lty = c(NA, 1), pch = c(1, NA), bty = "n")
+plot(cn, type = "p", xlab = "Genomic position", ylab = "Copy-number")
+lines(cn.cbs, col = 2, lwd = 2)
 }
 \keyword{segmentation}

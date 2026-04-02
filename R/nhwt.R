@@ -15,7 +15,7 @@ nhwt <- function(data, type = c("detail", "scaling")) {
   }
   
   n.sampl <- nrow(data)
-  n       <- ncol(data)
+  n <- ncol(data)
   
   if (n.sampl <= 0L || n <= 0L) {
     stop("'data' must have positive number of rows and columns.")
@@ -25,16 +25,16 @@ nhwt <- function(data, type = c("detail", "scaling")) {
   }
   
   ## Extend to next power of two by constant padding with value 1
-  n.up     <- ceiling(log2(n))
+  n.up <- ceiling(log2(n))
   n.extend <- 2^n.up
-  n.res    <- n.extend - n
+  n.res <- n.extend - n
   
   if (n.res == 0L) {
     data.extend <- data
     left <- 0L
   } else {
     data.extend <- matrix(NA_real_, nrow = n.sampl, ncol = n.extend)
-    left  <- floor(n.res / 2)
+    left <- floor(n.res / 2)
     right <- n.res - left
     for (i in seq_len(n.sampl)) {
       data.extend[i, ] <- c(rep(1, left), data[i, ], rep(1, right))
@@ -54,12 +54,14 @@ nhwt <- function(data, type = c("detail", "scaling")) {
   }
   
   scale <- 1L
-  for (k in (n.up - 1L):1L) {
+  for (k in rev(seq_len(n.up - 1L))) {
     for (i in seq_len(n.sampl)) {
-      wt <- wd(data.extend[i, ],
-               filter.number = 1,
-               family        = "DaubExPhase",
-               type          = "station")
+      wt <- wd(
+        data.extend[i, ],
+        filter.number = 1,
+        family = "DaubExPhase",
+        type = "station"
+      )
       
       temp <- if (type == "detail") {
         accessD(wt, level = k)
@@ -67,20 +69,23 @@ nhwt <- function(data, type = c("detail", "scaling")) {
         accessC(wt, level = k)
       }
       
+      shift <- 2^(scale - 1L) - 1L
+      lead <- 2^(scale - 1L)
+      
       if (n.res == 0L) {
-        coef.ndwt[[scale]][i, (1 + (2^(scale - 1L) - 1L)):n] <-
-          temp[1:(n - (2^(scale - 1L) - 1L))]
-        coef.ndwt[[scale]][i, 1:(2^(scale - 1L))] <-
-          temp[(n - (2^(scale - 1L) - 1L)):n]
+        coef.ndwt[[scale]][i, (1L + shift):n] <-
+          temp[seq_len(n - shift)]
+        coef.ndwt[[scale]][i, seq_len(lead)] <-
+          temp[(n - shift):n]
         data.ndwt[[scale]][i, ] <- coef.ndwt[[scale]][i, ]
       } else {
-        coef.ndwt[[scale]][i, (1 + (2^(scale - 1L) - 1L)):n.extend] <-
-          temp[1:(n.extend - (2^(scale - 1L) - 1L))]
-        coef.ndwt[[scale]][i, 1:(2^(scale - 1L))] <-
-          temp[(n.extend - (2^(scale - 1L) - 1L)):n.extend]
+        coef.ndwt[[scale]][i, (1L + shift):n.extend] <-
+          temp[seq_len(n.extend - shift)]
+        coef.ndwt[[scale]][i, seq_len(lead)] <-
+          temp[(n.extend - shift):n.extend]
         
         start.idx <- left + 1L
-        end.idx   <- left + n
+        end.idx <- left + n
         data.ndwt[[scale]][i, ] <-
           coef.ndwt[[scale]][i, start.idx:end.idx]
       }

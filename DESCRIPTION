@@ -20,7 +20,7 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: false
 Depends:
-    R (>= 4.3)
+    R (>= 4.5.0)
 Imports:
     DNAcopy,
     wavethresh,

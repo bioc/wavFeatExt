@@ -1,10 +1,11 @@
-#' Plot classification results from `classif.wavFeatExt`
+#' Plot Classification Results from `classifyWavFeatExt`
 #'
 #' Create boxplots of cross-validated performance measures (classification
-#' error or AUC) for wavelet-based feature sets used in [classif.wavFeatExt()],
-#' namely detail and scaling coefficients, and the original/segmented data.
+#' error or AUC) for wavelet-based feature sets used in
+#' [classifyWavFeatExt()], namely detail and scaling coefficients,
+#' and the original/segmented data.
 #'
-#' @param x The result object returned by [classif.wavFeatExt()], containing at
+#' @param x The result object returned by [classifyWavFeatExt()], containing at
 #'   least the components `CE`, `AUC`, and `method`.
 #'
 #' @param type Character string specifying which performance measure to plot.
@@ -14,65 +15,67 @@
 #' @param adjust Logical flag reserved for future extensions of the plotting
 #'   function. Currently not used.
 #'
-#' @param ... Additional graphical parameters passed to [graphics::boxplot()].
+#' @param ... Additional graphical parameters passed to
+#'   [graphics::boxplot()].
 #'
 #' @details
-#' It is assumed that [classif.wavFeatExt()] assigns column names to its `CE`
+#' It is assumed that [classifyWavFeatExt()] assigns column names to its `CE`
 #' and `AUC` matrices as follows:
-#' * Columns beginning with `"D"` (e.g., `"D1"`, `"D2"`, ...) correspond to
-#'   wavelet detail coefficients at different scales.
-#' * Columns beginning with `"S"` (e.g., `"S1"`, `"S2"`, ...) correspond to
-#'   wavelet scaling coefficients at different scales.
-#' * The column named `"seg"` corresponds to the original (or segmented) data
-#'   matrix.
+#' * Columns beginning with `"D"` correspond to wavelet detail coefficients.
+#' * Columns beginning with `"S"` correspond to wavelet scaling coefficients.
+#' * The column `"seg"` corresponds to the original (or segmented) data.
 #'
-#' The corresponding columns are extracted and displayed as boxplots, where each
-#' box summarises the distribution of cross-validated performance (CE or AUC)
-#' across replications for a given feature set.
+#' The corresponding columns are displayed as boxplots summarising
+#' cross-validated performance across replications.
 #'
 #' Two horizontal reference lines are added:
-#' * A red dashed line at the median performance of the `"seg"` feature set.
-#' * A blue dotted line at the best median performance among all feature sets
-#'   plotted (maximum median AUC or minimum median CE).
+#' * Red dashed line: median performance of `"seg"`
+#' * Blue dotted line: best median performance among all features
 #'
-#' @return This function is called for its side effect of producing a plot and
-#'   returns `invisible(NULL)`.
-#'
-#' @author
-#' Maharani Ahsani Ummi
+#' @return Invisibly returns `NULL`.
 #'
 #' @seealso
-#' [classif.wavFeatExt()],
-#' [classif.pcaica()],
+#' [classifyWavFeatExt()],
 #' [wavFeatExt()],
-#' [sim.CNA()]
+#' [simulateCNA()]
 #'
 #' @examples
-#' ## Generating simulated CNA data
 #' set.seed(10)
-#' sim.dat10 <- sim.CNA(n.sim = 10)
 #'
-#' ## Obtain detail and scaling coefficients
-#' det.coef.10 <- wavFeatExt(sim.dat10, type = "detail")
-#' sca.coef.10 <- wavFeatExt(sim.dat10, type = "scaling")
+#' ## Small simulated data for fast execution
+#' sim.dat <- simulateCNA(
+#'   n.obs = 20,
+#'   p = 32,
+#'   n.sim = 1,
+#'   n.block = 8,
+#'   verbose = FALSE
+#' )
+#'
+#' ## Extract wavelet features
+#' det.coef <- wavFeatExt(sim.dat, type = "detail")
+#' sca.coef <- wavFeatExt(sim.dat, type = "scaling")
 #'
 #' ## Binary response
-#' y <- factor(c(rep("Group1", 50), rep("Group2", 50)))
+#' y <- factor(rep(c("Group1", "Group2"), each = 10))
 #'
-#' ## Classification using Lasso
-#' res <- classif.wavFeatExt(sim.dat10, y,
-#'                           det.coef.10, sca.coef.10,
-#'                           method = "lasso", k = 5)
+#' ## Classification (fast method)
+#' res <- classifyWavFeatExt(
+#'   sim.dat,
+#'   y,
+#'   det.coef,
+#'   sca.coef,
+#'   method = "KNN",
+#'   k = 5,
+#'   ite = 1
+#' )
 #'
-#' ## Plot classification error for all feature sets
+#' ## Plot results
 #' plot(res, type = "CE")
-#'
-#' ## Plot AUC for all feature sets
 #' plot(res, type = "AUC")
 #'
-#' @keywords hplot classification wavelets
+#' @method plot wavFeatExtClassifier
 #' @export
-plot.classif.wavFeatExt <- function(x,
+plot.wavFeatExtClassifier <- function(x,
                                     type   = c("CE", "AUC"),
                                     adjust = TRUE,  # reserved
                                     ...) {

@@ -1,5 +1,5 @@
 #' @export
-get.ica <- function(x, k, ...) {
+getIca <- function(x, k, ...) {
   
   if (missing(k) || length(k) != 1L || k < 2L) {
     stop("'k' must be a single integer >= 2.")
@@ -43,8 +43,8 @@ get.ica <- function(x, k, ...) {
     
     ## Build cumulative component matrices: [, 1:2], [, 1:3], ..., [, 1:k]
     comp_list <- vector("list", k - 1L)
-    for (j in 2:k) {
-      comp_list[[j - 1L]] <- as.matrix(S[, 1:j, drop = FALSE])
+    for (j in seq.int(2L, k)) {
+      comp_list[[j - 1L]] <- as.matrix(S[, seq_len(j), drop = FALSE])
     }
     
     all.res[[i]] <- comp_list

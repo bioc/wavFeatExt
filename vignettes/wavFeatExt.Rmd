@@ -28,7 +28,7 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-The **`wavFeatExt`** package implements the methodology proposed by Ummi et al. (2022) for feature extraction from copy-number alteration (CNA) profiles using the non-decimated Haar wavelet transform (NHWT). The main goal is to represent genome-wide CNA signals by multiscale wavelet coefficients that are more suitable for prediction than the raw, highly correlated CNA values.
+The **`wavFeatExt`** package implements wavelet-based methodology for feature extraction from copy-number alteration (CNA) profiles using the non-decimated Haar wavelet transform (NHWT). The main goal is to represent genome-wide CNA signals by multiscale wavelet coefficients that are more suitable for prediction than the raw, highly correlated CNA values.
 
 In typical CNA studies, each sample is measured at thousands of genomic windows (or genes), and neighbouring windows are strongly correlated because CNAs occur in contiguous segments. Directly fitting supervised learning models on these correlated predictors can lead to unstable variable selection and suboptimal classification performance. Wavelet-based feature extraction addresses this by:
 
@@ -40,15 +40,15 @@ which together provide a compact, multiresolution representation of the genome-w
 
 The package provides:
 
-- simulation of block-correlated CNA data (**`sim.CNA`**),
+- simulation of block-correlated CNA data (**`simulateCNA`**),
 
 - segmentation using circular binary segmentation (**`seg`**, **`CBS`**),
 
 - wavelet-based feature extraction (**`wavFeatExt`**),
 
-- PCA/ICA feature extraction for comparison (**`get.pca`**, **`get.ica`**), and
+- PCA/ICA feature extraction for comparison (**`getPca`**, **`getIca`**), and
 
-- classification wrappers for several machine-learning methods (**`classif.wavFeatExt`**, **`classif.pcaica`**).
+- classification wrappers for several machine-learning methods (**`classifyWavFeatExt`**, **`classifyPcaIca`**).
 
 This vignette gives a short, reproducible example of the wavFeatExt workflow on simulated CNA data, closely mirroring the analyses described in the original paper.
 
@@ -76,30 +76,27 @@ For real data, a typical preprocessing pipeline is:
 2. Normalise coverage (e.g. GC-content, tumour purity).
 3. Segment each profile using circular binary segmentation (CBS).
 
-In this vignette we will work with simulated, already segmented data from sim.CNA, which mimics these characteristics.
+In this vignette we will work with simulated, already segmented data from simulateCNA, which mimics these characteristics.
 
 # Simulation
 
 ## Simulating CNA data
 
-The function **`sim.CNA()`** generates segmented CNA profiles for two tumour subtypes under a multivariate normal model with a block correlation structure, similar to the simulation study in Ummi et al. (2022).
+The function **`simulateCNA()`** generates segmented CNA profiles for two tumour subtypes under a multivariate normal model with a block correlation structure, similar to the simulation study in Ummi et al. (2022).
 
 
 You can also embed plots, for example:
 
-```{r echo=T, results='hide'}
+```{r}
 # One simulated data set with moderate dimension
 
-sim_dat <- sim.CNA(
-n.obs     = 80,    # number of samples
-p         = 512,   # number of genomic locations
-n.sim     = 1,     # number of simulated data sets
-effect.diff = 1,   # mean difference between subtypes
-n.block   = 32
+sim_dat <- simulateCNA(
+  n.obs   = 40,
+  p       = 64,
+  n.sim   = 1,
+  n.block = 8,
+  verbose = FALSE
 )
-
-length(sim_dat)
-dim(sim_dat[[1]])
 
 ```
 
@@ -107,7 +104,7 @@ dim(sim_dat[[1]])
 
 We now create a binary response factor:
 
-```{r echo=T, results='hide'}
+```{r}
 X <- sim_dat[[1]]
 n <- nrow(X)
 
@@ -121,7 +118,7 @@ table(y)
 
 The core function **`wavFeatExt()`** applies the non-decimated Haar wavelet transform across genomic locations for each sample and returns either detail or scaling coefficients at all available scales.
 
-```{r echo=T, results='hide'}
+```{r}
 # Extract wavelet detail coefficients (differences)
 
 det_coef <- wavFeatExt(sim_dat, type = "detail")
@@ -168,7 +165,7 @@ plot(nh_scaling, coef = "scaling", type = "by.level", scale = "all")
 
 ## Classification using wavelet features
 
-After extracting wavelet coefficients, the **`classif.wavFeatExt()`** function provides a unified interface to several machine-learning classifiers implemented in **`glmnet`**, **`randomForest`**, **`nnet`**, **`pls`**, and **`class`**.
+After extracting wavelet coefficients, the **`classifyWavFeatExt()`** function provides a unified interface to several machine-learning classifiers implemented in **`glmnet`**, **`randomForest`**, **`nnet`**, **`pls`**, and **`class`**.
 The function accepts:
 
 - **`data`** – a list of CNA matrices or simulated CNA output
@@ -187,14 +184,14 @@ The function accepts:
 
 Below is an example classification based on wavelet detail coefficients:
 
-```{r echo=T, results='hide', message=FALSE}
+```{r}
 
-# Binary response (for example, first 40 vs last 40 samples)
-y <- factor(c(rep("Group1", 40), rep("Group2", 40)))
+# Binary response (for example, first 20 vs last 20 samples)
+y <- factor(c(rep("Group1", 20), rep("Group2", 20)))
 
 # Perform classification using Lasso
-res_lasso <- classif.wavFeatExt(sim_dat, y, det=det_coef, sca=sca_coef,
-                          method = "lasso", k = 5, ite = 2)
+res_KNN <- classifyWavFeatExt(sim_dat, y, det=det_coef, sca=sca_coef,
+                          method = "KNN", k = 5, ite = 2)
 
 ```
 The output typically contains:
@@ -205,39 +202,28 @@ The output typically contains:
 
 - the classification method used.
 
-To compare different classification methods:
-  
-```{r echo=T, results='hide', message=FALSE}
-res_RF  <- classif.wavFeatExt(sim_dat, y, det = det_coef, sca = sca_coef,
-                              method="RF",  k=5)
-res_NN  <- classif.wavFeatExt(sim_dat, y, det = det_coef, sca = sca_coef,
-                              method="NN",  k=5)
-res_PLS <- classif.wavFeatExt(sim_dat, y, det = det_coef, sca = sca_coef,
-                              method="PLS", k=5)
-
-```
-
 Depending on the simulation settings (**`effect.diff`**, correlation strength), wavelet features often outperform PCA/ICA because they preserve local, multi-scale genomic changes that drive subtype differences.
 
 # Comparison with PCA/ICA
 
 To demonstrate this, we extract PCA and ICA features using:
   
-```{r echo=T, results='hide', message=FALSE}
+```{r}
 # Obtain PCA/ICA features
 
-pca_feat <- get.pca(sim_dat, k = 10)
-ica_feat <- get.ica(sim_dat, k = 10)
+pca_feat <- getPca(sim_dat, k = 5)
+ica_feat <- getIca(sim_dat, k = 5)
 
 # Classification using PCA and ICA features
 
-res_pcaica <- classif.pcaica(
-  data = sim_dat,
-  y    = y,
-  pca = pca_feat,
-  ica = ica_feat,
-  method = "lasso",
-  k = 5
+res_pcaica <- classifyPcaIca(
+  sim_dat,
+  y,
+  pca_feat,
+  ica_feat,
+  method = "KNN",
+  k = 5,
+  ite = 1
 )
 
 ```
@@ -245,23 +231,23 @@ res_pcaica <- classif.pcaica(
 
 # Plotting classification error and AUC
 
-The object returned by **`classif.wavFeatExt()`** contains two matrices:
+The object returned by **`classifyWavFeatExt()`** contains two matrices:
   
   **`CE`** – misclassification error for each feature set (detail/scaling scales and segmented data),
 
 **`AUC`** – corresponding area under the ROC curve (AUC).
 
-The package provides an S3 method **`plot.classif.wavFeatExt()`** to visualise these as boxplots across replications (**`ite`**).
+The package provides an S3 method **`plot.classifyWavFeatExt()`** to visualise these as boxplots across replications (**`ite`**).
 
 ```{r}
 
 ## Misclassification error per scale (and segmented baseline)
 
-plot(res_PLS, type = "CE", ylab = "Misclassification error")
+plot(res_KNN, type = "CE", ylab = "Misclassification error")
 
 ## AUC per scale (and segmented baseline)
 
-plot(res_PLS, type = "AUC", ylab = "Area under ROC curve")
+plot(res_KNN, type = "AUC", ylab = "Area under ROC curve")
 
 ```
 
@@ -279,11 +265,10 @@ Interpretation:
 If you also use PCA/ICA, you can similarly call:
   
 ```{r}
-class(res_pcaica) <- "classif.pcaica"
 plot(res_pcaica, type = "CE")   # or type = "AUC"
 ```
 
-## Session Infoemation
+## Session Information
 ```{r}
 sessionInfo()
 ```

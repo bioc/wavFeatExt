@@ -1,9 +1,9 @@
 #' @export
-classif.wavFeatExt <- function(data, y, det, sca,
+classifyWavFeatExt <- function(data, y, det, sca,
                                method = c("lasso", "elnet", "RF", "NN", "PLS", "KNN"),
                                k = 5,
                                ite = length(data),
-                               all = FALSE) {
+                               all = FALSE, verbose = FALSE) {
   
   method <- match.arg(method)
   
@@ -169,7 +169,7 @@ classif.wavFeatExt <- function(data, y, det, sca,
           stop("Unknown 'method'.")
         }
         
-        roc.obj <- pROC::roc(y.test_bin, pred_prob)
+        roc.obj <- pROC::roc(y.test_bin, pred_prob, quiet = TRUE)
         auc_vec[f] <- as.numeric(pROC::auc(roc.obj))
       }
       
@@ -190,6 +190,6 @@ classif.wavFeatExt <- function(data, y, det, sca,
     method = method,
     all    = isTRUE(all)
   )
-  class(res) <- "classif.wavFeatExt"
+  class(res) <- "wavFeatExtClassifier"
   res
 }

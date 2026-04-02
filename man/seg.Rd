@@ -7,7 +7,7 @@ This function is a convenience wrapper around \code{\link{CBS}} for
 performing segmentation per observation.
 }
 \usage{
-seg(test.noise, denoise = "CBS")
+seg(test.noise, denoise = "CBS", verbose = FALSE)
 }
 \arguments{
   \item{test.noise}{
@@ -19,6 +19,10 @@ seg(test.noise, denoise = "CBS")
     Character string specifying the segmentation method. Currently
     only \code{"CBS"} is supported and used to indicate circular
     binary segmentation.
+  }
+  \item{verbose}{
+    Logical. If \code{TRUE}, progress messages from the segmentation
+    procedure are shown. If \code{FALSE}, they are suppressed.
   }
 }
 \details{
@@ -41,10 +45,6 @@ Olshen, A. B., Venkatraman, E. S., Lucito, R. and Wigler, M. (2004).
 Circular binary segmentation for the analysis of array-based DNA copy
 number data.
 \emph{Biostatistics} \bold{5}(4), 557--572.
-
-Vionanda, et al. (2023).
-Prediction of tumour subtypes based on copy number alterations:
-Feature extraction for random forest. Submitted.
 }
 \author{
 Maharani Ummi \email{maharaniahsani@gmail.com}
@@ -54,31 +54,25 @@ Maharani Ummi \email{maharaniahsani@gmail.com}
 \code{\link{wavFeatExt}}
 }
 \examples{
-## Generate a matrix of (noisy) copy-number data under normal error
 set.seed(10)
-cn1 <- rnorm(100, mean = c(rep(2, 50), rep(1, 50)), sd = 0.4)
-cn  <- cn1
-for (j in 2:10) {
-  cn <- rbind(cn, rnorm(100,
-                        mean = c(rep(2, 50), rep(1, 50)),
-                        sd = 0.4))
-}
 
-dim(cn)
+cn <- replicate(
+  10,
+  rnorm(100, mean = c(rep(2, 50), rep(1, 50)), sd = 0.4)
+)
+cn <- t(cn)
 
-## Segmentation using seg (CBS for each row)
-cn.seg <- seg(cn, denoise = "CBS")
+cn.seg <- seg(cn, denoise = "CBS", verbose = FALSE)
 
 dim(cn.seg)
 
-## Plot first two observations
 par(mfrow = c(1, 2))
 plot(cn[1, ], type = "p", main = "Observation 1",
      xlab = "Position", ylab = "Copy-number")
-lines(cn.seg[1, ], type = "l", col = 2, lwd = 2)
+lines(cn.seg[1, ], col = 2, lwd = 2)
 
 plot(cn[2, ], type = "p", main = "Observation 2",
      xlab = "Position", ylab = "Copy-number")
-lines(cn.seg[2, ], type = "l", col = 2, lwd = 2)
+lines(cn.seg[2, ], col = 2, lwd = 2)
 }
 \keyword{segmentation}

@@ -1,5 +1,5 @@
 #' @export
-seg <- function(test.noise, denoise = "CBS") {
+seg <- function(test.noise, denoise = "CBS", verbose = FALSE) {
   if (!is.matrix(test.noise)) {
     test.noise <- as.matrix(test.noise)
   }
@@ -20,7 +20,7 @@ seg <- function(test.noise, denoise = "CBS") {
   test.seg <- matrix(NA_real_, nrow.x, n)
   
   for (i in seq_len(nrow.x)) {
-    test.seg[i, ] <- CBS(test.noise[i, ], chr = rep(1L, n))
+    test.seg[i, ] <- CBS(test.noise[i, ], chr = rep(1L, n),verbose = verbose)
   }
   
   test.seg

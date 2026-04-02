@@ -1,5 +1,5 @@
-\name{get.ica}
-\alias{get.ica}
+\name{getIca}
+\alias{getIca}
 \title{
 Independent Component Analysis (ICA) for a List of Matrices
 }
@@ -9,13 +9,13 @@ collection of data sets and returns cumulative independent components
 for use in downstream classification or feature extraction.
 }
 \usage{
-get.ica(x, k, ...)
+getIca(x, k, ...)
 }
 \arguments{
   \item{x}{
     Either a numeric matrix, a list of numeric matrices (with rows
     corresponding to observations and columns to variables), or the
-    output from \code{\link{sim.CNA}}. Each matrix will undergo ICA
+    output from \code{\link{simulateCNA}}. Each matrix will undergo ICA
     separately.
   }
   \item{k}{
@@ -36,7 +36,7 @@ independent components (rows = observations, columns = components).
 The function then constructs a list of \code{k - 1} matrices per data
 set, where the \eqn{j}-th element (for \eqn{j = 2, \dots, k}) contains
 the first \eqn{j} independent components, i.e. \code{S[, 1:j]}. This
-cumulative structure mirrors the behaviour of \code{\link{get.pca}} and
+cumulative structure mirrors the behaviour of \code{\link{getPca}} and
 provides feature sets with increasing dimensionality (2 components,
 3 components, and so on).
 
@@ -62,26 +62,33 @@ Maharani Ahsani Ummi and Arief Gusnanto
 \note{
 The cumulative component representation (2, 3, \dots, \code{k}
 components) is designed to be used in combination with
-\code{\link{classif.pcaica}} for comparing classification performance
+\code{\link{classifyPcaIca}} for comparing classification performance
 across different feature dimensions.
 }
 \seealso{
-\code{\link{get.pca}},
-\code{\link{classif.pcaica}},
-\code{\link{sim.CNA}},
+\code{\link{getPca}},
+\code{\link{classifyPcaIca}},
+\code{\link{simulateCNA}},
 \code{\link[ica]{icafast}}
 }
 \examples{
-## Generate simulated CNA data
 set.seed(10)
-sim.dat10 <- sim.CNA(n.sim = 2)  # two simulated data sets
 
-## Obtain ICA-based features with 5 components
-ica <- get.ica(sim.dat10, k = 5)
+## Small simulated data for fast execution
+sim.dat <- simulateCNA(
+  n.obs = 20,
+  p = 32,
+  n.sim = 1,
+  n.block = 8,
+  verbose = FALSE
+)
 
-length(ica)          # number of data sets
-length(ica[[1]])     # number of cumulative ICA feature sets (k - 1)
-sapply(ica[[1]], dim)  # dimensions for each cumulative feature set
+## Obtain ICA-based features
+ica <- getIca(sim.dat, k = 5)
+
+length(ica)
+length(ica[[1]])
+sapply(ica[[1]], dim)
 }
 \keyword{multivariate}
 \keyword{dimension reduction}
