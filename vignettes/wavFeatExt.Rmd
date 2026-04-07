@@ -264,11 +264,11 @@ Interpretation:
 
 If you also use PCA/ICA, you can similarly call:
   
-```{r}
+```{r plot-pcaica-classification}
 plot(res_pcaica, type = "CE")   # or type = "AUC"
 ```
 
 ## Session Information
-```{r}
+```{r session-info}
 sessionInfo()
 ```
