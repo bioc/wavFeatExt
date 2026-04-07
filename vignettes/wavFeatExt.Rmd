@@ -56,7 +56,7 @@ For any query about the package, please contact the maintainer, Maharani A. Ummi
 
 ## Getting Started
 This vignette assumes that wavFeatExt has already been installed (e.g., from Bioconductor once available).
-```{r}
+```{r installation}
 library(wavFeatExt)
 ```
 
@@ -87,7 +87,7 @@ The function **`simulateCNA()`** generates segmented CNA profiles for two tumour
 
 You can also embed plots, for example:
 
-```{r}
+```{r simulate-data}
 # One simulated data set with moderate dimension
 
 sim_dat <- simulateCNA(
@@ -104,7 +104,7 @@ sim_dat <- simulateCNA(
 
 We now create a binary response factor:
 
-```{r}
+```{r response-factor}
 X <- sim_dat[[1]]
 n <- nrow(X)
 
@@ -118,7 +118,7 @@ table(y)
 
 The core function **`wavFeatExt()`** applies the non-decimated Haar wavelet transform across genomic locations for each sample and returns either detail or scaling coefficients at all available scales.
 
-```{r}
+```{r feature-extraction}
 # Extract wavelet detail coefficients (differences)
 
 det_coef <- wavFeatExt(sim_dat, type = "detail")
@@ -145,7 +145,7 @@ Each matrix has the same dimension as the original CNA data (**`n.obs x p`**). A
 
 For illustrative purposes, we can inspect the NHWT coefficients of a single CNA profile using the legacy helper **`nhwt()`** and **`plot.nhwt()`**. This is a convenient way to see how the transform behaves on one sample.
 
-```{r}
+```{r wavelet-visualitation}
 
 # Take one sample (row) from the simulated data
 
@@ -184,7 +184,7 @@ The function accepts:
 
 Below is an example classification based on wavelet detail coefficients:
 
-```{r}
+```{r classification}
 
 # Binary response (for example, first 20 vs last 20 samples)
 y <- factor(c(rep("Group1", 20), rep("Group2", 20)))
@@ -208,7 +208,7 @@ Depending on the simulation settings (**`effect.diff`**, correlation strength), 
 
 To demonstrate this, we extract PCA and ICA features using:
   
-```{r}
+```{r apply-PCAICA}
 # Obtain PCA/ICA features
 
 pca_feat <- getPca(sim_dat, k = 5)
@@ -239,7 +239,7 @@ The object returned by **`classifyWavFeatExt()`** contains two matrices:
 
 The package provides an S3 method **`plot.classifyWavFeatExt()`** to visualise these as boxplots across replications (**`ite`**).
 
-```{r}
+```{r plot-results}
 
 ## Misclassification error per scale (and segmented baseline)
 
