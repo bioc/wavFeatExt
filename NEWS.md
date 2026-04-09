@@ -1,4 +1,4 @@
-# wavFeatExt 0.99.13
+# wavFeatExt 0.99.14
 
 ## Changes
 - Updated function names to comply with Bioconductor naming conventions

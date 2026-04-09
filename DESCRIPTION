@@ -1,7 +1,7 @@
 Package: wavFeatExt
 Type: Package
 Title: Wavelet-based Feature Extraction for Copy-number Alteration Data
-Version: 0.99.13
+Version: 0.99.14
 Authors@R: c(
     person("Maharani Ahsani", "Ummi",
            email = "maharaniahsani@itb.ac.id",
