@@ -188,7 +188,13 @@ classifyPcaIca <- function(data, y, pca, ica,
     idx.sim <- if (n.sim == 1L) 1L else ((i - 1L) %% n.sim) + 1L
     
     ## random k-fold assignment for this iteration
-    fold_id <- sample(rep(seq_len(k), each = fold_size))
+    fold_id <- integer(n.data)
+    
+    for (lev in levels(y_fac)) {
+      idx <- which(y_fac == lev)
+      idx <- sample(idx)
+      fold_id[idx] <- rep(seq_len(k), length.out = length(idx))
+    }
     
     mce  <- numeric(n.features)
     mauc <- numeric(n.features)

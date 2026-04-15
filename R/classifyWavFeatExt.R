@@ -182,7 +182,13 @@ classifyWavFeatExt <- function(data, y, det, sca,
   for (i in seq_len(ite)) {
     
     idx.sim <- if (n.sim == 1L) 1L else ((i - 1L) %% n.sim) + 1L
-    fold_id <- sample(rep(seq_len(k), each = fold_size))
+    fold_id <- integer(n.data)
+    
+    for (lev in levels(y_fac)) {
+      idx <- which(y_fac == lev)
+      idx <- sample(idx)
+      fold_id[idx] <- rep(seq_len(k), length.out = length(idx))
+    }
     
     mce  <- numeric(n.features)
     mauc <- numeric(n.features)
