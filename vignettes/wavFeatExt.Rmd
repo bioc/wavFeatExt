@@ -54,8 +54,19 @@ This vignette gives a short, reproducible example of the wavFeatExt workflow on 
 
 For any query about the package, please contact the maintainer, Maharani A. Ummi (maharaniahsani@itb.ac.id).
 
+## Installation
+
+To install `wavFeatExt`, use the Bioconductor package manager:
+
+```{r eval=FALSE}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("wavFeatExt")
+```
+
 ## Getting Started
-This vignette assumes that wavFeatExt has already been installed (e.g., from Bioconductor once available).
+After installation, load the package to begin using `wavFeatExt`
 ```{r installation}
 library(wavFeatExt)
 ```
